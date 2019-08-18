@@ -15,5 +15,5 @@ dependencies {
     compile "org.springframework.boot:spring-boot-starter-actuator:$springBootVersion"
     compile("org.springframework.hateoas:spring-hateoas:$springHateoasVersion")
 
-    testCompile project(":test-utils")
+    
 }
