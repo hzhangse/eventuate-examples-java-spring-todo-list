@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-
+import org.springframework.web.client.RestTemplate;
 
 @Configuration
 @EntityScan("net.chrisrichardson.eventstore.examples.todolist")
@@ -24,36 +24,47 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 @EnableEventHandlers
 public class TodoBackendConfiguration {
 
-  @Bean
-  public TodoEventSubscriber todoEventSubscriber() {
-    return new TodoEventSubscriber();
-  }
+	@Bean
+	public RestTemplate restTemplate() {
+		return new RestTemplate();
+	}
 
-  @Bean
-  public AggregateRepository<TodoAggregate, TodoCommand> aggregateRepository(EventuateAggregateStore eventStore) {
-    return new AggregateRepository<>(TodoAggregate.class, eventStore);
-  }
+	@Bean
+	public TodoEventSubscriber todoEventSubscriber() {
+		return new TodoEventSubscriber();
+	}
 
-  @Bean
-  public AggregateRepository<TodoBulkDeleteAggregate, TodoCommand> bulkDeleteAggregateRepository(EventuateAggregateStore eventStore) {
-    return new AggregateRepository<>(TodoBulkDeleteAggregate.class, eventStore);
-  }
+	@Bean
+	public AggregateRepository<TodoAggregate, TodoCommand> aggregateRepository(EventuateAggregateStore eventStore) {
+		return new AggregateRepository<>(TodoAggregate.class, eventStore);
+	}
 
-  @Bean
-  public TodoService updateService(AggregateRepository<TodoAggregate, TodoCommand> aggregateRepository, AggregateRepository<TodoBulkDeleteAggregate, TodoCommand> bulkDeleteAggregateRepository) {
-    return new TodoService(aggregateRepository, bulkDeleteAggregateRepository);
-  }
+	@Bean
+	public AggregateRepository<TodoBulkDeleteAggregate, TodoCommand> bulkDeleteAggregateRepository(
+			EventuateAggregateStore eventStore) {
+		return new AggregateRepository<>(TodoBulkDeleteAggregate.class, eventStore);
+	}
 
-  @Bean
-  public TodoViewServiceImpl commandService(TodoRepository repository) {
-    return new TodoViewServiceImpl(repository);
-  }
+	@Bean
+	public TodoService updateService(AggregateRepository<TodoAggregate, TodoCommand> aggregateRepository,
+			AggregateRepository<TodoBulkDeleteAggregate, TodoCommand> bulkDeleteAggregateRepository) {
+		return new TodoService(aggregateRepository, bulkDeleteAggregateRepository);
+	}
 
-  @Bean
-  public HttpMessageConverters customConverters() {
-    HttpMessageConverter<?> additional = new MappingJackson2HttpMessageConverter();
-    return new HttpMessageConverters(additional);
-  }
+//	@Bean
+//	public TodoViewServiceImpl commandService(TodoRepository repository) {
+//		return new TodoViewServiceImpl(repository);
+//	}
+	
+	@Bean
+	public TodoViewServiceImpl todoviewService(RestTemplate restTemplate) {
+		return new TodoViewServiceImpl(restTemplate);
+	}
+
+
+	@Bean
+	public HttpMessageConverters customConverters() {
+		HttpMessageConverter<?> additional = new MappingJackson2HttpMessageConverter();
+		return new HttpMessageConverters(additional);
+	}
 }
-
-
